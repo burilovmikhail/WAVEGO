@@ -143,24 +143,15 @@ async def main_logic(websocket, path):
 	await recv_msg(websocket)
 
 
-if __name__ == '__main__':
-	global flask_app
+async def serve():
+	async with websockets.serve(main_logic, '0.0.0.0', 8888):
+		print('waiting for connection...')
+		await asyncio.Future()
 
+
+if __name__ == '__main__':
 	wifi_check()
 	flask_app = app.webapp()
 	flask_app.startthread()
 	flask_app.sendIP(ipaddr_check)
-
-	while  1:
-		try:
-			start_server = websockets.serve(main_logic, '0.0.0.0', 8888)
-			asyncio.get_event_loop().run_until_complete(start_server)
-			print('waiting for connection...')
-			break
-		except Exception as e:
-			print(e)
-
-	try:
-		asyncio.get_event_loop().run_forever()
-	except Exception as e:
-		print(e)
+	asyncio.run(serve())

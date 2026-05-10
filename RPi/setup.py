@@ -43,7 +43,6 @@ exec_with_retries(
 exec_with_retries("sudo apt-get install -y i2c-tools")
 exec_with_retries("sudo apt-get install -y python3-smbus")
 exec_with_retries("sudo apt-get install -y python3-picamera2 libcamera-dev")
-# exec_with_retries("sudo apt-get -y install libhdf5-dev libhdf5-serial-dev libatlas-base-dev libjasper-dev")  # ???
 
 os.system("python3 -m venv --system-site-packages " + thisPath + "/venv")
 
@@ -56,18 +55,6 @@ exec_with_retries(venvPip + " install websockets")
 try:
     replace_num(CONFIG_TXT, '[all]',
                 '[all]\nenable_uart=1\ngpu_mem=128')
-except:
-    print('try again')
-
-try:
-    replace_num(CONFIG_TXT, 'camera_auto_detect=1',
-                '#camera_auto_detect=1\nstart_x=1')
-except:
-    print('try again')
-
-try:
-    replace_num(CONFIG_TXT, 'camera_auto_detect=1',
-                '#camera_auto_detect=1')
 except:
     print('try again')
 

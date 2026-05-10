@@ -509,12 +509,15 @@ class Camera(BaseCamera):
                 main={"size": (640, 480), "format": "BGR888"}
             ))
             picam2.start()
-        except Exception:
+        except Exception as e:
+            print(f'picamera2 unavailable ({e}), trying V4L2')
             picam2 = None
             source = Camera.video_source
             camera = cv2.VideoCapture(source, cv2.CAP_V4L2)
             if not camera.isOpened():
                 source = _find_video_source()
+                if source == 0:
+                    raise RuntimeError('Could not start camera: no capture device found.')
                 camera = cv2.VideoCapture(source, cv2.CAP_V4L2)
             camera.set(3, 640)
             camera.set(4, 480)
