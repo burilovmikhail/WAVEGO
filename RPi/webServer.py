@@ -42,14 +42,15 @@ def wifi_check():
 async def check_permit(websocket):
 	while True:
 		recv_str = await websocket.recv()
+		print(f'[auth] received: {recv_str!r}')
 		cred_dict = recv_str.split(":")
-		if cred_dict[0] == "admin" and cred_dict[1] == "123456":
-			response_str = "Connected!"
-			await websocket.send(response_str)
+		if len(cred_dict) == 2 and cred_dict[0] == "admin" and cred_dict[1] == "123456":
+			print('[auth] accepted')
+			await websocket.send("Connected!")
 			return True
 		else:
-			response_str = "sorry, the username or password is wrong, please submit again"
-			await websocket.send(response_str)
+			print('[auth] rejected')
+			await websocket.send("sorry, the username or password is wrong, please submit again")
 
 
 async def recv_msg(websocket):
@@ -62,10 +63,11 @@ async def recv_msg(websocket):
 
 		data = ''
 		data = await websocket.recv()
+		print(f'[ws] received: {data!r}')
 		try:
 			data = json.loads(data)
-		except Exception as e:
-			print('not A JSON')
+		except Exception:
+			pass
 
 		if not data:
 			continue

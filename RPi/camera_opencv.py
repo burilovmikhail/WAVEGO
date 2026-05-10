@@ -556,6 +556,7 @@ class Camera(BaseCamera):
 
 def commandAct(act, inputA):
     global speedMove
+    print(f'[cmd] act={act!r} inputA={inputA!r}')
     if act == 'forward':
         robot.forward(speedMove)
     elif act == 'backward':
