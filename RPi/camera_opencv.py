@@ -1,5 +1,6 @@
 import glob
 import os
+import subprocess
 import cv2
 from base_camera import BaseCamera
 import numpy as np
@@ -405,10 +406,15 @@ class CVThread(threading.Thread):
 
 def _find_video_source():
     for dev in sorted(glob.glob('/dev/video*'), key=lambda d: int(d[len('/dev/video'):])):
-        cap = cv2.VideoCapture(dev, cv2.CAP_V4L2)
-        if cap.isOpened():
-            cap.release()
-            return dev
+        try:
+            r = subprocess.run(
+                ['v4l2-ctl', '--device', dev, '--info'],
+                capture_output=True, text=True, timeout=2
+            )
+            if 'Video Capture' in r.stdout:
+                return dev
+        except Exception:
+            pass
     return 0
 
 
