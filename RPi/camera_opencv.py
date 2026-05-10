@@ -500,22 +500,35 @@ class Camera(BaseCamera):
 
     @staticmethod
     def frames():
-        source = Camera.video_source
-        camera = cv2.VideoCapture(source, cv2.CAP_V4L2)
-        if not camera.isOpened():
-            source = _find_video_source()
+        picam2 = None
+        camera = None
+        try:
+            from picamera2 import Picamera2
+            picam2 = Picamera2()
+            picam2.configure(picam2.create_video_configuration(
+                main={"size": (640, 480), "format": "BGR888"}
+            ))
+            picam2.start()
+        except Exception:
+            picam2 = None
+            source = Camera.video_source
             camera = cv2.VideoCapture(source, cv2.CAP_V4L2)
-        camera.set(3, 640)
-        camera.set(4, 480)
-        if not camera.isOpened():
-            raise RuntimeError('Could not start camera.')
+            if not camera.isOpened():
+                source = _find_video_source()
+                camera = cv2.VideoCapture(source, cv2.CAP_V4L2)
+            camera.set(3, 640)
+            camera.set(4, 480)
+            if not camera.isOpened():
+                raise RuntimeError('Could not start camera.')
 
         cvt = CVThread()
         cvt.start()
 
         while True:
-            # read current frame
-            _, img = camera.read()
+            if picam2 is not None:
+                img = picam2.capture_array()
+            else:
+                _, img = camera.read()
 
             if Camera.modeSelect == 'none':
                 cvt.pause()

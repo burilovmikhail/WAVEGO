@@ -42,9 +42,10 @@ exec_with_retries(
     "sudo apt-get install -y python3-pip python3-venv libfreetype6-dev libjpeg-dev build-essential")  # python-dev?
 exec_with_retries("sudo apt-get install -y i2c-tools")
 exec_with_retries("sudo apt-get install -y python3-smbus")
+exec_with_retries("sudo apt-get install -y python3-picamera2 libcamera-dev")
 # exec_with_retries("sudo apt-get -y install libhdf5-dev libhdf5-serial-dev libatlas-base-dev libjasper-dev")  # ???
 
-os.system("python3 -m venv " + thisPath + "/venv")
+os.system("python3 -m venv --system-site-packages " + thisPath + "/venv")
 
 exec_with_retries(venvPip + " install -U pip")
 exec_with_retries(venvPip + " install pyserial")
