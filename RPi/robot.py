@@ -1,11 +1,13 @@
 #!/usr/bin/env/python3
 # File name   : robot.py
 # Description : Robot interfaces.
+import os
 import time
 import json
 import serial
 
-ser = serial.Serial("/dev/ttyS0",115200)
+_SERIAL_PORT = next((p for p in ('/dev/serial0', '/dev/ttyAMA0', '/dev/ttyS0') if os.path.exists(p)), '/dev/ttyS0')
+ser = serial.Serial(_SERIAL_PORT, 115200)
 dataCMD = json.dumps({'var':"", 'val':0, 'ip':""})
 upperGlobalIP = 'UPPER IP'
 

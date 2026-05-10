@@ -13,7 +13,7 @@ venvPython = thisPath + '/venv/bin/python3'
 CONFIG_TXT = '/boot/firmware/config.txt' if os.path.exists(
     '/boot/firmware/config.txt') else '/boot/config.txt'
 CMDLINE_TXT = '/boot/firmware/cmdline.txt' if os.path.exists(
-    '/boot/firmware/cmdline.txt') else CMDLINE_TXT
+    '/boot/firmware/cmdline.txt') else '/boot/cmdline.txt'
 
 
 def replace_num(file, initial, new_num):
