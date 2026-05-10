@@ -138,7 +138,7 @@ async def recv_msg(websocket):
 		await websocket.send(response)
 
 
-async def main_logic(websocket, path):
+async def main_logic(websocket):
 	await check_permit(websocket)
 	await recv_msg(websocket)
 
