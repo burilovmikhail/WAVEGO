@@ -8,137 +8,95 @@ import re
 
 curpath = os.path.realpath(__file__)
 thisPath = os.path.dirname(curpath)
+venvPip = thisPath + '/venv/bin/pip'
+venvPython = thisPath + '/venv/bin/python3'
+CONFIG_TXT = '/boot/firmware/config.txt' if os.path.exists(
+    '/boot/firmware/config.txt') else '/boot/config.txt'
+CMDLINE_TXT = '/boot/firmware/cmdline.txt' if os.path.exists(
+    '/boot/firmware/cmdline.txt') else CMDLINE_TXT
 
-def replace_num(file,initial,new_num):  
-    newline=""
-    str_num=str(new_num)
-    with open(file,"r") as f:
+
+def replace_num(file, initial, new_num):
+    newline = ""
+    str_num = str(new_num)
+    with open(file, "r") as f:
         for line in f.readlines():
-            if(line.find(initial) == 0):
-                line = (str_num+'\n')
+            if line.find(initial) == 0:
+                line = str_num + '\n'
             newline += line
-    with open(file,"w") as f:
+    with open(file, "w") as f:
         f.writelines(newline)
 
-for x in range(1,4):
-	if os.system("sudo apt update") == 0:
-		break
 
-for x in range(1,4):
-	if os.system("sudo apt -y dist-upgrade") == 0:
-		break
+def exec_with_retries(*commands, retries=3):
+    for _ in range(retries):
+        for cmd in commands:
+            if os.system(cmd) == 0:
+                return
 
-for x in range(1,4):
-	if os.system("sudo apt clean") == 0:
-		break
 
-for x in range(1,4):
-	if os.system("sudo pip3 install --break-system-packages -U pip") == 0:
-		break
+exec_with_retries("sudo apt update")
+exec_with_retries("sudo apt upgrade")
+exec_with_retries("sudo apt clean")
+exec_with_retries(
+    "sudo apt-get install -y python3-pip python3-venv libfreetype6-dev libjpeg-dev build-essential")  # python-dev?
+exec_with_retries("sudo apt-get install -y i2c-tools")
+exec_with_retries("sudo apt-get install -y python3-smbus")
+# exec_with_retries("sudo apt-get -y install libhdf5-dev libhdf5-serial-dev libatlas-base-dev libjasper-dev")  # ???
 
-for x in range(1,4):
-	if os.system("sudo apt-get install -y python-dev python3-pip libfreetype6-dev libjpeg-dev build-essential") == 0:
-		break
+os.system("python3 -m venv " + thisPath + "/venv")
 
-for x in range(1,4):
-	if os.system("sudo apt-get install -y i2c-tools") == 0:
-		break
-
-for x in range(1,4):
-	if os.system("sudo apt-get install -y python3-smbus") == 0:
-		break
-
-for x in range(1,4):
-	if os.system("sudo pip3 install --break-system-packages pyserial") == 0:
-		break
-	elif os.system("sudo pip3 install --break-system-packages -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple pyserial") == 0:
-		break
-
-for x in range(1,4):
-	if os.system("sudo pip3 install --break-system-packages flask") == 0:
-		break
-	elif os.system("sudo pip3 install --break-system-packages -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple flask") == 0:
-		break
-
-for x in range(1,4):
-	if os.system("sudo pip3 install --break-system-packages flask_cors") == 0:
-		break
-	elif os.system("sudo pip3 install --break-system-packages -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple flask_cors") == 0:
-		break
-
-for x in range(1,4):
-	if os.system("sudo pip3 install --break-system-packages websockets") == 0:
-		break
-	elif os.system("sudo pip3 install --break-system-packages -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple websockets") == 0:
-		break
-try:
-	replace_num("/boot/config.txt",'[all]','[all]\nenable_uart=1\ngpu_mem=128')
-except:
-	print('try again')
+exec_with_retries(venvPip + " install -U pip")
+exec_with_retries(venvPip + " install pyserial")
+exec_with_retries(venvPip + " install flask")
+exec_with_retries(venvPip + " install flask_cors")
+exec_with_retries(venvPip + " install websockets")
 
 try:
-	replace_num("/boot/config.txt",'camera_auto_detect=1','#camera_auto_detect=1\nstart_x=1')
+    replace_num(CONFIG_TXT, '[all]',
+                '[all]\nenable_uart=1\ngpu_mem=128')
 except:
-	print('try again')
+    print('try again')
 
 try:
-	replace_num("/boot/config.txt",'camera_auto_detect=1','#camera_auto_detect=1')
+    replace_num(CONFIG_TXT, 'camera_auto_detect=1',
+                '#camera_auto_detect=1\nstart_x=1')
 except:
-	print('try again')
+    print('try again')
 
+try:
+    replace_num(CONFIG_TXT, 'camera_auto_detect=1',
+                '#camera_auto_detect=1')
+except:
+    print('try again')
 
-CMDLINE_FILE = open('/boot/cmdline.txt', 'r')
+CMDLINE_FILE = open(CMDLINE_TXT, 'r')
 OLD_LINES = CMDLINE_FILE.readlines()
 CMDLINE_FILE.close()
 
-CMDLINE_FILE = open('/boot/cmdline.txt', 'w+')
+CMDLINE_FILE = open(CMDLINE_TXT, 'w+')
 for EACH_LINE in OLD_LINES:
-	NEW_LINES = re.sub('console=serial0,115200', '', EACH_LINE)
-	CMDLINE_FILE.writelines(NEW_LINES)
-
+    NEW_LINES = re.sub('console=serial0,115200', '', EACH_LINE)
+    CMDLINE_FILE.writelines(NEW_LINES)
 CMDLINE_FILE.close()
 
+# ??? ==3.4.11.45
+exec_with_retries(venvPip + " install opencv-contrib-python")
+exec_with_retries(venvPip + " install opencv-python")
+# exec_with_retries(venvPip + " uninstall -y numpy") # ???
+exec_with_retries(venvPip + " install numpy")  # ==1.21
+exec_with_retries(venvPip + " install imutils zmq pybase64 psutil")
 
-for x in range(1,4):
-	if os.system("sudo pip3 install --break-system-packages opencv-contrib-python==3.4.11.45") == 0:
-		break
-	elif os.system("sudo pip3 install --break-system-packages -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple opencv-contrib-python==3.4.11.45") == 0:
-		break
-
-
-
-for x in range(1,4):
-	if os.system("sudo pip3 uninstall --break-system-packages -y numpy") == 0:
-		break
-
-for x in range(1,4):
-	if os.system("sudo pip3 install --break-system-packages numpy==1.21") == 0:
-		break
-	elif os.system("sudo pip3 install --break-system-packages -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple numpy==1.21") == 0:
-		break
-
-for x in range(1,4):
-	if os.system("sudo apt-get -y install libhdf5-dev libhdf5-serial-dev libatlas-base-dev libjasper-dev") == 0:
-		break
-
-for x in range(1,4):
-	if os.system("sudo pip3 install --break-system-packages imutils zmq pybase64 psutil") == 0:
-		break
-	elif os.system("sudo pip3 install --break-system-packages -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple imutils zmq pybase64 psutil") == 0:
-		break
-
-for x in range(1,4):
-	if os.system("sudo apt-get install -y util-linux procps hostapd iproute2 iw haveged dnsmasq") == 0:
-		break
-        
-for x in range(1,4):
-	if os.system("cd " + thisPath + " && cd .. && sudo git clone https://github.com/oblique/create_ap") == 0:
-		break
+exec_with_retries(
+    "sudo apt-get install -y util-linux procps hostapd iproute2 iw haveged dnsmasq")
+exec_with_retries("cd " + thisPath +
+                  " && cd .. && sudo git clone https://github.com/oblique/create_ap")
 
 try:
-	os.system("cd " + thisPath + " && cd .. && cd create_ap && sudo make install")
+    os.system("cd " + thisPath +
+              " && cd .. && cd create_ap && sudo make install")
 except:
-	pass
+    pass
 
 init_script = """#!/bin/sh
 ### BEGIN INIT INFO
@@ -149,8 +107,8 @@ init_script = """#!/bin/sh
 # Default-Stop:      0 1 6
 # Short-Description: WAVEGO web server
 ### END INIT INFO
-cd {path} && python3 webServer.py &
-""".format(path=thisPath)
+cd {path} && {python} webServer.py &
+""".format(path=thisPath, python=venvPython)
 
 with open('/tmp/wavego-server', 'w') as f:
     f.write(init_script)
