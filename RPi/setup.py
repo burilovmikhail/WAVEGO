@@ -33,7 +33,7 @@ for x in range(1,4):
 		break
 
 for x in range(1,4):
-	if os.system("sudo pip3 install -U pip") == 0:
+	if os.system("sudo pip3 install --break-system-packages -U pip") == 0:
 		break
 
 for x in range(1,4):
@@ -49,27 +49,27 @@ for x in range(1,4):
 		break
 
 for x in range(1,4):
-	if os.system("sudo pip3 install pyserial") == 0:
+	if os.system("sudo pip3 install --break-system-packages pyserial") == 0:
 		break
-	elif os.system("sudo pip3 install -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple pyserial") == 0:
-		break
-
-for x in range(1,4):
-	if os.system("sudo pip3 install flask") == 0:
-		break
-	elif os.system("sudo pip3 install -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple flask") == 0:
+	elif os.system("sudo pip3 install --break-system-packages -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple pyserial") == 0:
 		break
 
 for x in range(1,4):
-	if os.system("sudo pip3 install flask_cors") == 0:
+	if os.system("sudo pip3 install --break-system-packages flask") == 0:
 		break
-	elif os.system("sudo pip3 install -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple flask_cors") == 0:
+	elif os.system("sudo pip3 install --break-system-packages -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple flask") == 0:
 		break
 
 for x in range(1,4):
-	if os.system("sudo pip3 install websockets") == 0:
+	if os.system("sudo pip3 install --break-system-packages flask_cors") == 0:
 		break
-	elif os.system("sudo pip3 install -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple websockets") == 0:
+	elif os.system("sudo pip3 install --break-system-packages -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple flask_cors") == 0:
+		break
+
+for x in range(1,4):
+	if os.system("sudo pip3 install --break-system-packages websockets") == 0:
+		break
+	elif os.system("sudo pip3 install --break-system-packages -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple websockets") == 0:
 		break
 try:
 	replace_num("/boot/config.txt",'[all]','[all]\nenable_uart=1\ngpu_mem=128')
@@ -100,21 +100,21 @@ CMDLINE_FILE.close()
 
 
 for x in range(1,4):
-	if os.system("sudo pip3 install opencv-contrib-python==3.4.11.45") == 0:
+	if os.system("sudo pip3 install --break-system-packages opencv-contrib-python==3.4.11.45") == 0:
 		break
-	elif os.system("sudo pip3 install -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple opencv-contrib-python==3.4.11.45") == 0:
+	elif os.system("sudo pip3 install --break-system-packages -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple opencv-contrib-python==3.4.11.45") == 0:
 		break
 
 
 
 for x in range(1,4):
-	if os.system("sudo pip3 uninstall -y numpy") == 0:
+	if os.system("sudo pip3 uninstall --break-system-packages -y numpy") == 0:
 		break
 
 for x in range(1,4):
-	if os.system("sudo pip3 install numpy==1.21") == 0:
+	if os.system("sudo pip3 install --break-system-packages numpy==1.21") == 0:
 		break
-	elif os.system("sudo pip3 install -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple numpy==1.21") == 0:
+	elif os.system("sudo pip3 install --break-system-packages -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple numpy==1.21") == 0:
 		break
 
 for x in range(1,4):
@@ -122,9 +122,9 @@ for x in range(1,4):
 		break
 
 for x in range(1,4):
-	if os.system("sudo pip3 install imutils zmq pybase64 psutil") == 0:
+	if os.system("sudo pip3 install --break-system-packages imutils zmq pybase64 psutil") == 0:
 		break
-	elif os.system("sudo pip3 install -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple imutils zmq pybase64 psutil") == 0:
+	elif os.system("sudo pip3 install --break-system-packages -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple imutils zmq pybase64 psutil") == 0:
 		break
 
 for x in range(1,4):
@@ -140,7 +140,23 @@ try:
 except:
 	pass
 
-replace_num('/etc/rc.local','exit 0','cd '+thisPath+' && sudo python3 webServer.py &\nexit 0')
+init_script = """#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          wavego-server
+# Required-Start:    $remote_fs $syslog $network
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: WAVEGO web server
+### END INIT INFO
+cd {path} && python3 webServer.py &
+""".format(path=thisPath)
+
+with open('/tmp/wavego-server', 'w') as f:
+    f.write(init_script)
+os.system("sudo mv /tmp/wavego-server /etc/init.d/wavego-server")
+os.system("sudo chmod +x /etc/init.d/wavego-server")
+os.system("sudo update-rc.d wavego-server defaults")
 
 print('Completed!')
 
