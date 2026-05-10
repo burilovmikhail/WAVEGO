@@ -4,12 +4,24 @@
 import os
 import time
 import json
+import threading
 import serial
 
 _SERIAL_PORT = next((p for p in ('/dev/serial0', '/dev/ttyAMA0', '/dev/ttyS0') if os.path.exists(p)), '/dev/ttyS0')
 print(f'[serial] opening {_SERIAL_PORT}')
 ser = serial.Serial(_SERIAL_PORT, 115200)
 print(f'[serial] opened: {ser}')
+
+def _serial_reader():
+    while True:
+        try:
+            line = ser.readline()
+            if line:
+                print(f'[serial] << {line}')
+        except Exception as e:
+            print(f'[serial] read error: {e}')
+
+threading.Thread(target=_serial_reader, daemon=True).start()
 dataCMD = json.dumps({'var':"", 'val':0, 'ip':""})
 upperGlobalIP = 'UPPER IP'
 
