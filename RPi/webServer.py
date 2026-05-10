@@ -3,11 +3,15 @@
 # Production  : Upper Ctrl for Robots
 # Author	  : WaveShare
 
+import sys
 import time
 import threading
 import os
 import socket
 import info
+
+sys.stdout.reconfigure(line_buffering=True)
+sys.stderr.reconfigure(line_buffering=True)
 
 #websocket
 import asyncio

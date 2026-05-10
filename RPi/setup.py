@@ -95,7 +95,7 @@ init_script = """#!/bin/sh
 # Default-Stop:      0 1 6
 # Short-Description: WAVEGO web server
 ### END INIT INFO
-cd {path} && {python} webServer.py &
+cd {path} && {python} -u webServer.py &
 """.format(path=thisPath, python=venvPython)
 
 with open('/tmp/wavego-server', 'w') as f:
