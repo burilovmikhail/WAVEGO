@@ -527,6 +527,7 @@ class Camera(BaseCamera):
         cvt = CVThread()
         cvt.start()
 
+        active_mode = None
         while True:
             if picam2 is not None:
                 img = picam2.capture_array()
@@ -534,9 +535,13 @@ class Camera(BaseCamera):
                 _, img = camera.read()
 
             if Camera.modeSelect == 'none':
-                cvt.pause()
-                robot.buzzerCtrl(0, 0)
+                if active_mode != 'none':
+                    cvt.pause()
+                    robot.buzzerCtrl(0, 0)
+                    active_mode = 'none'
             else:
+                if active_mode != Camera.modeSelect:
+                    active_mode = Camera.modeSelect
                 if cvt.CVThreading:
                     pass
                 else:
