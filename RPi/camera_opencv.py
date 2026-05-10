@@ -1,3 +1,4 @@
+import glob
 import os
 import cv2
 from base_camera import BaseCamera
@@ -402,6 +403,15 @@ class CVThread(threading.Thread):
                 self.CVThreading = 0
 
 
+def _find_video_source():
+    for dev in sorted(glob.glob('/dev/video*'), key=lambda d: int(d[len('/dev/video'):])):
+        cap = cv2.VideoCapture(dev, cv2.CAP_V4L2)
+        if cap.isOpened():
+            cap.release()
+            return dev
+    return 0
+
+
 class Camera(BaseCamera):
     video_source = 0
     modeSelect = 'none'
@@ -484,7 +494,11 @@ class Camera(BaseCamera):
 
     @staticmethod
     def frames():
-        camera = cv2.VideoCapture(Camera.video_source)
+        source = Camera.video_source
+        camera = cv2.VideoCapture(source, cv2.CAP_V4L2)
+        if not camera.isOpened():
+            source = _find_video_source()
+            camera = cv2.VideoCapture(source, cv2.CAP_V4L2)
         camera.set(3, 640)
         camera.set(4, 480)
         if not camera.isOpened():
